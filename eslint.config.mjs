@@ -17,7 +17,7 @@ const eslintConfig = [
         "varsIgnorePattern": "^_",
         "argsIgnorePattern": "^_",
         "destructuredArrayIgnorePattern": "^_",
-        "ignoreRestSiblings": true
+        "ignoreRestSiblings": true 
       }]
     }
   }
