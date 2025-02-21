@@ -177,23 +177,14 @@ export default function Page() {
 
       <FileUpload onFileSelect={handleFileSelect} maxSize={10 * 1024 * 1024} />
 
-      {loading && (
-        <Card className="p-8">
-          <div className="flex items-center justify-center">
-            <Loader2 className="h-8 w-8 animate-spin" />
-            <span className="ml-2">Analyzing your proposal...</span>
-          </div>
-        </Card>
-      )}
-
       {extractedSections && renderAnalysisAndContent()}
 
-      {pdfContent && (
+      {/* {pdfContent && (
         <div className="mt-8 p-4 bg-white rounded-lg shadow">
           <h2 className="text-xl font-semibold mb-4">PDF Content</h2>
           <p className="whitespace-pre-wrap">{pdfContent}</p>
         </div>
-      )}
+      )} */}
     </div>
   );
 }
