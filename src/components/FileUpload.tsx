@@ -7,7 +7,6 @@ import { Upload, FileText, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { usePDFJS } from "@/hooks/usePDFJS";
 
 interface FileUploadProps {
   onFileSelect: (file: File) => void;
@@ -22,35 +21,6 @@ export function FileUpload({
   const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-
-  // Initialize PDF.js
-  usePDFJS(
-    async (pdfjs) => {
-      if (!currentFile) return;
-
-      try {
-        // Convert file to ArrayBuffer
-        const arrayBuffer = await currentFile.arrayBuffer();
-
-        // Load the PDF document
-        const loadingTask = pdfjs.getDocument({ data: arrayBuffer });
-
-        // Get the PDF document
-        const pdf = await loadingTask.promise;
-        console.log("PDF loaded");
-        console.log("Number of pages:", pdf.numPages);
-
-        // Example: Extract text from first page
-        const page = await pdf.getPage(1);
-        const textContent = await page.getTextContent();
-        const textItems = textContent.items.map((item: any) => item.str);
-        console.log("First page text:", textItems.join(" "));
-      } catch (error) {
-        console.error("Error parsing PDF:", error);
-      }
-    },
-    [currentFile]
-  );
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
