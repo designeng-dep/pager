@@ -4,9 +4,7 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { FileUpload } from "@/components/FileUpload";
-import ScoreCard from "@/components/ScoreCard";
 import { usePDFJS } from "@/hooks/usePDFJS";
 import { useOpenAI } from "@/hooks/useOpenAI";
 import {
@@ -15,12 +13,6 @@ import {
   SectionKeys,
 } from "@/hooks/useTextExtractor";
 import { analyzerPrompts } from "@/constants/analyzerPrompts";
-
-interface Section {
-  title: string;
-  score: number;
-  feedback: string;
-}
 
 export default function Page() {
   const { extractText, pdfContent } = usePDFJS();
