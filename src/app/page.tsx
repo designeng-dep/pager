@@ -69,17 +69,42 @@ export default function Page() {
     }
   };
 
-  const renderAIAnalysis = () => {
-    return Object.entries(aiResponses).map(([key, analysis]) => (
-      <div key={key} className="mt-8 p-4 bg-white rounded-lg shadow">
-        <h2 className="text-xl font-semibold mb-4">
-          AI Analysis:{" "}
-          {key
-            .replace(/([A-Z])/g, " $1")
-            .replace(/^./, (str) => str.toUpperCase())}
-        </h2>
-        <div className="prose prose-sm max-w-none">
-          <ReactMarkdown>{analysis}</ReactMarkdown>
+  const renderAnalysisAndContent = () => {
+    const sections = [
+      {
+        key: "definitionAndSize",
+        title: "Definition and Size of Problem",
+      },
+      {
+        key: "measurableOutcomes",
+        title: "Measurable Outcomes",
+      },
+      {
+        key: "proposedSolution",
+        title: "Proposed Solution and Risk Mitigation",
+      },
+      {
+        key: "validation",
+        title: "Validation of Previous POCs",
+      },
+    ];
+
+    return sections.map(({ key, title }) => (
+      <div key={key} className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+        {/* AI Analysis Column */}
+        <div className="bg-white rounded-lg shadow p-4">
+          <h2 className="text-xl font-semibold mb-4">AI Analysis: {title}</h2>
+          <div className="prose prose-sm max-w-none">
+            <ReactMarkdown>{aiResponses[key as SectionKeys]}</ReactMarkdown>
+          </div>
+        </div>
+
+        {/* Original Content Column */}
+        <div className="rounded-lg border border-gray-200 p-4">
+          <h2 className="text-xl font-semibold mb-4">{title}</h2>
+          <p className="whitespace-pre-wrap">
+            {extractedSections?.[key as SectionKeys]}
+          </p>
         </div>
       </div>
     ));
@@ -106,50 +131,12 @@ export default function Page() {
         </Card>
       )}
 
-      {renderAIAnalysis()}
+      {extractedSections && renderAnalysisAndContent()}
 
       {pdfContent && (
         <div className="mt-8 p-4 bg-white rounded-lg shadow">
           <h2 className="text-xl font-semibold mb-4">PDF Content</h2>
           <p className="whitespace-pre-wrap">{pdfContent}</p>
-        </div>
-      )}
-
-      {extractedSections && (
-        <div className="mt-8 space-y-6">
-          <div className="rounded-lg border border-gray-200 p-6">
-            <h2 className="mb-4 text-xl font-semibold">
-              Definition and Size of Problem
-            </h2>
-            <p className="whitespace-pre-wrap">
-              {extractedSections.definitionAndSize}
-            </p>
-          </div>
-
-          <div className="rounded-lg border border-gray-200 p-6">
-            <h2 className="mb-4 text-xl font-semibold">Measurable Outcomes</h2>
-            <p className="whitespace-pre-wrap">
-              {extractedSections.measurableOutcomes}
-            </p>
-          </div>
-
-          <div className="rounded-lg border border-gray-200 p-6">
-            <h2 className="mb-4 text-xl font-semibold">
-              Proposed Solution and Risk Mitigation
-            </h2>
-            <p className="whitespace-pre-wrap">
-              {extractedSections.proposedSolution}
-            </p>
-          </div>
-
-          <div className="rounded-lg border border-gray-200 p-6">
-            <h2 className="mb-4 text-xl font-semibold">
-              Validation of Previous POCs
-            </h2>
-            <p className="whitespace-pre-wrap">
-              {extractedSections.validation}
-            </p>
-          </div>
         </div>
       )}
     </div>
