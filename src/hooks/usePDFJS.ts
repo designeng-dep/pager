@@ -38,7 +38,7 @@ export const usePDFJS = () => {
         const pageText = textContent.items
           .map((item: { str: string }) => item.str)
           .join(" ");
-        fullText += `Page ${i}:\n${pageText}\n\n`;
+        fullText += pageText;
       }
 
       setPdfContent(fullText);
