@@ -50,7 +50,9 @@ Structure your responses as follows:
    - Highlight effective elements in the submission
    - Explain why these elements work well
 
-Maintain a constructive tone while giving feedback. Focus on specific, actionable improvements rather than general criticism.`,
+Maintain a constructive tone while giving feedback. Focus on specific, actionable improvements rather than general criticism.
+
+If the submitted content is not relevant to the section requirements, respond with "No relevant content found".`,
   measurableOutcomes: `You are a project proposal evaluation assistant. Your role is to analyze submitted content against the following section requirements:
 
 <section-requirements>
@@ -94,7 +96,9 @@ Structure your responses as follows:
    - Highlight effective elements in the submission
    - Explain why these elements work well
 
-Maintain a constructive tone while giving feedback. Focus on specific, actionable improvements rather than general criticism.`,
+Maintain a constructive tone while giving feedback. Focus on specific, actionable improvements rather than general criticism.
+
+If the submitted content is not relevant to the section requirements, respond with "No relevant content found".`,
   proposedSolution: `You are a project proposal evaluation assistant. Your role is to analyze submitted content against the following section requirements:
 
 <section-requirements>
@@ -145,7 +149,9 @@ Structure your responses as follows:
   - Highlight effective elements in the submission
   - Explain why these elements work well
 
-Maintain a constructive tone while giving feedback. Focus on specific, actionable improvements rather than general criticism.`,
+Maintain a constructive tone while giving feedback. Focus on specific, actionable improvements rather than general criticism.
+
+If the submitted content is not relevant to the section requirements, respond with "No relevant content found".`,
   validation: `You are a project proposal evaluation assistant. Your role is to analyze submitted content against the following section requirements:
 
   <section-requirements>
@@ -191,7 +197,9 @@ Maintain a constructive tone while giving feedback. Focus on specific, actionabl
     - Highlight effective elements in the submission
     - Explain why these elements work well
   
-  Maintain a constructive tone while giving feedback. Focus on specific, actionable improvements rather than general criticism.`,
+  Maintain a constructive tone while giving feedback. Focus on specific, actionable improvements rather than general criticism.
+  
+  If the submitted content is not relevant to the section requirements, respond with "No relevant content found".`,
 } as const;
 
 // Type for the prompts object

@@ -30,16 +30,20 @@ export default function Page() {
   });
   const [extractedSections, setExtractedSections] =
     useState<ExtractedSections | null>(null);
+  const [editedSections, setEditedSections] =
+    useState<ExtractedSections | null>(null);
 
   const handleFileSelect = async (selectedFile: File) => {
     setFile(selectedFile);
     setLoading(true);
     setError(null);
+    setEditedSections(null);
 
     try {
       const extractedText = await extractText(selectedFile);
       const sections = extractSections(extractedText);
       setExtractedSections(sections);
+      setEditedSections(sections);
 
       // Process each section with its corresponding prompt
       const analysisPromises = Object.entries(sections).map(
@@ -69,6 +73,26 @@ export default function Page() {
     }
   };
 
+  const handleReanalyzeSection = async (key: SectionKeys) => {
+    if (!editedSections) return;
+
+    setLoading(true);
+    try {
+      const prompt = analyzerPrompts[key];
+      const newAnalysis = await analyzeText(editedSections[key], prompt);
+
+      setAiResponses((prev) => ({
+        ...prev,
+        [key]: newAnalysis,
+      }));
+    } catch (error) {
+      console.error(`Error reanalyzing ${key}:`, error);
+      setError(`Failed to reanalyze ${key}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const renderAnalysisAndContent = () => {
     const sections = [
       {
@@ -89,22 +113,53 @@ export default function Page() {
       },
     ];
 
+    const handleTextChange = (key: SectionKeys, value: string) => {
+      setEditedSections((prev) => {
+        const base = prev || extractedSections;
+        if (!base) return null;
+        return {
+          ...base,
+          [key]: value,
+        };
+      });
+    };
+
     return sections.map(({ key, title }) => (
       <div key={key} className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
         {/* AI Analysis Column */}
         <div className="bg-white rounded-lg shadow p-4">
-          <h2 className="text-xl font-semibold mb-4">AI Analysis: {title}</h2>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold">AI Analysis: {title}</h2>
+            <button
+              onClick={() => handleReanalyzeSection(key as SectionKeys)}
+              disabled={loading}
+              className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:bg-blue-300 disabled:cursor-not-allowed flex items-center gap-2"
+            >
+              {loading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                "Re-analyze"
+              )}
+            </button>
+          </div>
           <div className="prose prose-sm max-w-none">
             <ReactMarkdown>{aiResponses[key as SectionKeys]}</ReactMarkdown>
           </div>
         </div>
 
-        {/* Original Content Column */}
+        {/* Editable Content Column */}
         <div className="rounded-lg border border-gray-200 p-4">
           <h2 className="text-xl font-semibold mb-4">{title}</h2>
-          <p className="whitespace-pre-wrap">
-            {extractedSections?.[key as SectionKeys]}
-          </p>
+          <textarea
+            className="w-full h-[300px] p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={
+              (editedSections || extractedSections)?.[key as SectionKeys] || ""
+            }
+            onChange={(e) =>
+              handleTextChange(key as SectionKeys, e.target.value)
+            }
+            placeholder={`Enter ${title} here...`}
+          />
         </div>
       </div>
     ));
