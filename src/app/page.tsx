@@ -8,6 +8,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { FileUpload } from "@/components/FileUpload";
 import ScoreCard from "@/components/ScoreCard";
 import { usePDFJS } from "@/hooks/usePDFJS";
+import { useOpenAI } from "@/hooks/useOpenAI";
 
 interface Section {
   title: string;
@@ -16,10 +17,12 @@ interface Section {
 }
 
 export default function Page() {
-  const { extractText, pdfContent, aiResponse } = usePDFJS();
+  const { extractText, pdfContent } = usePDFJS();
+  const { analyzeText } = useOpenAI();
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [aiResponse, setAIResponse] = useState("");
   const [sections, setSections] = useState<Section[]>([
     {
       title: "Problem Area",
@@ -56,7 +59,19 @@ export default function Page() {
   const handleFileSelect = async (selectedFile: File) => {
     setFile(selectedFile);
     setLoading(true);
-    await extractText(selectedFile);
+    try {
+      const extractedText = await extractText(selectedFile);
+      const response = await analyzeText(extractedText);
+      if (response) {
+        setAIResponse(response);
+      }
+      console.log("response????", response);
+    } catch (error) {
+      console.error("Error processing file:", error);
+      setError("Failed to process the file");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const overallScore =
@@ -74,20 +89,21 @@ export default function Page() {
 
       <FileUpload onFileSelect={handleFileSelect} maxSize={10 * 1024 * 1024} />
 
-      {loading &&
-        (!aiResponse ? (
-          <Card className="p-8">
-            <div className="flex items-center justify-center">
-              <Loader2 className="h-8 w-8 animate-spin" />
-              <span className="ml-2">Analyzing your proposal...</span>
-            </div>
-          </Card>
-        ) : (
-          <div className="mt-8 p-4 bg-white rounded-lg shadow">
-            <h2 className="text-xl font-semibold mb-4">AI Analysis</h2>
-            <p className="whitespace-pre-wrap">{aiResponse}</p>
+      {loading && (
+        <Card className="p-8">
+          <div className="flex items-center justify-center">
+            <Loader2 className="h-8 w-8 animate-spin" />
+            <span className="ml-2">Analyzing your proposal...</span>
           </div>
-        ))}
+        </Card>
+      )}
+
+      {aiResponse && (
+        <div className="mt-8 p-4 bg-white rounded-lg shadow">
+          <h2 className="text-xl font-semibold mb-4">AI Analysis</h2>
+          <p className="whitespace-pre-wrap">{aiResponse}</p>
+        </div>
+      )}
 
       {pdfContent && (
         <div className="mt-8 p-4 bg-white rounded-lg shadow">

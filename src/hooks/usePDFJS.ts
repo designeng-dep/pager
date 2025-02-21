@@ -2,13 +2,10 @@
 
 import { useEffect, useState } from "react";
 import * as PDFJS from "pdfjs-dist/types/src/pdf";
-import { useOpenAI } from "./useOpenAI";
 
 export const usePDFJS = () => {
   const [pdfjs, setPDFJS] = useState<typeof PDFJS | null>(null);
   const [pdfContent, setPdfContent] = useState<string>("");
-  const [aiResponse, setAIResponse] = useState<string>("");
-  const { analyzeText } = useOpenAI();
 
   // load the library once on mount (the webpack import automatically sets-up the worker)
   useEffect(() => {
@@ -45,14 +42,6 @@ export const usePDFJS = () => {
       }
 
       setPdfContent(fullText);
-
-      try {
-        const response = await analyzeText(fullText);
-        setAIResponse(response);
-      } catch (error) {
-        console.error("Error analyzing PDF:", error);
-      }
-
       return fullText;
     } catch (error) {
       console.error("Error extracting PDF text:", error);
@@ -63,6 +52,5 @@ export const usePDFJS = () => {
   return {
     extractText,
     pdfContent,
-    aiResponse,
   };
 };
