@@ -13,6 +13,7 @@ import {
   SectionKeys,
 } from "@/hooks/useTextExtractor";
 import { analyzerPrompts } from "@/constants/analyzerPrompts";
+import ReactMarkdown from "react-markdown";
 
 export default function Page() {
   const { extractText, pdfContent } = usePDFJS();
@@ -77,7 +78,9 @@ export default function Page() {
             .replace(/([A-Z])/g, " $1")
             .replace(/^./, (str) => str.toUpperCase())}
         </h2>
-        <p className="whitespace-pre-wrap">{analysis}</p>
+        <div className="prose prose-sm max-w-none">
+          <ReactMarkdown>{analysis}</ReactMarkdown>
+        </div>
       </div>
     ));
   };
