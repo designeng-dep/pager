@@ -74,43 +74,27 @@ export default function Page() {
 
       <FileUpload onFileSelect={handleFileSelect} maxSize={10 * 1024 * 1024} />
 
-      {loading ? (
-        <Card className="p-8">
-          <div className="flex items-center justify-center">
-            <Loader2 className="h-8 w-8 animate-spin" />
-            <span className="ml-2">Analyzing your proposal...</span>
-          </div>
-        </Card>
-      ) : (
-        file && (
-          <div className="space-y-6">
-            <Card className="p-6">
-              <h2 className="text-xl font-semibold mb-2">Overall Score</h2>
-              <div className="text-3xl font-bold text-primary">
-                {overallScore.toFixed(1)}/10
-              </div>
-            </Card>
-
-            <div className="grid gap-4">
-              {sections.map((section) => (
-                <ScoreCard
-                  key={section.title}
-                  dimension={section.title}
-                  score={section.score}
-                  feedback={section.feedback}
-                />
-              ))}
+      {loading &&
+        (!aiResponse ? (
+          <Card className="p-8">
+            <div className="flex items-center justify-center">
+              <Loader2 className="h-8 w-8 animate-spin" />
+              <span className="ml-2">Analyzing your proposal...</span>
             </div>
+          </Card>
+        ) : (
+          <div className="mt-8 p-4 bg-white rounded-lg shadow">
+            <h2 className="text-xl font-semibold mb-4">AI Analysis</h2>
+            <p className="whitespace-pre-wrap">{aiResponse}</p>
           </div>
-        )
-      )}
+        ))}
 
-      {aiResponse && (
+      {/* {aiResponse && (
         <div className="mt-8 p-4 bg-white rounded-lg shadow">
           <h2 className="text-xl font-semibold mb-4">AI Analysis</h2>
           <p className="whitespace-pre-wrap">{aiResponse}</p>
         </div>
-      )}
+      )} */}
 
       {pdfContent && (
         <div className="mt-8 p-4 bg-white rounded-lg shadow">
