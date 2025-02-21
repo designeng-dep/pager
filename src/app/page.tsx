@@ -16,7 +16,7 @@ interface Section {
 }
 
 export default function Page() {
-  const { extractText, pdfContent } = usePDFJS();
+  const { extractText, pdfContent, aiResponse } = usePDFJS();
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -105,12 +105,17 @@ export default function Page() {
         )
       )}
 
+      {aiResponse && (
+        <div className="mt-8 p-4 bg-white rounded-lg shadow">
+          <h2 className="text-xl font-semibold mb-4">AI Analysis</h2>
+          <p className="whitespace-pre-wrap">{aiResponse}</p>
+        </div>
+      )}
+
       {pdfContent && (
-        <div className="mt-8">
-          <h2 className="text-xl font-semibold mb-2">Extracted Content:</h2>
-          <div className="whitespace-pre-wrap bg-gray-50 p-4 rounded-lg border">
-            {pdfContent}
-          </div>
+        <div className="mt-8 p-4 bg-white rounded-lg shadow">
+          <h2 className="text-xl font-semibold mb-4">PDF Content</h2>
+          <p className="whitespace-pre-wrap">{pdfContent}</p>
         </div>
       )}
     </div>
