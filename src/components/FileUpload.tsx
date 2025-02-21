@@ -1,75 +1,108 @@
-'use client'
+"use client";
 
-import { useCallback, useState } from 'react'
-import { useDropzone } from 'react-dropzone'
-import { Card } from '@/components/ui/card'
-import { Upload, FileText, X } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Progress } from '@/components/ui/progress'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import { useCallback, useState } from "react";
+import { useDropzone } from "react-dropzone";
+import { Card } from "@/components/ui/card";
+import { Upload, FileText, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { usePDFJS } from "@/hooks/usePDFJS";
 
 interface FileUploadProps {
-  onFileSelect: (file: File) => void
-  maxSize?: number
+  onFileSelect: (file: File) => void;
+  maxSize?: number;
 }
 
-export function FileUpload({ 
-  onFileSelect, 
-  maxSize = 5 * 1024 * 1024 
+export function FileUpload({
+  onFileSelect,
+  maxSize = 5 * 1024 * 1024,
 }: FileUploadProps) {
-  const [currentFile, setCurrentFile] = useState<File | null>(null)
-  const [error, setError] = useState<string | null>(null)
-  const [uploading, setUploading] = useState(false)
-  const [uploadProgress, setUploadProgress] = useState(0)
+  const [currentFile, setCurrentFile] = useState<File | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
-  const onDrop = useCallback((acceptedFiles: File[]) => {
-    setError(null)
-    const file = acceptedFiles[0]
+  // Initialize PDF.js
+  usePDFJS(
+    async (pdfjs) => {
+      if (!currentFile) return;
 
-    if (!file) {
-      setError('No file selected')
-      return
-    }
+      try {
+        // Convert file to ArrayBuffer
+        const arrayBuffer = await currentFile.arrayBuffer();
 
-    if (!file.type.includes('pdf')) {
-      setError('Please upload a PDF file')
-      return
-    }
+        // Load the PDF document
+        const loadingTask = pdfjs.getDocument({ data: arrayBuffer });
 
-    if (file.size > maxSize) {
-      setError(`File size must be less than ${maxSize / (1024 * 1024)}MB`)
-      return
-    }
+        // Get the PDF document
+        const pdf = await loadingTask.promise;
+        console.log("PDF loaded");
+        console.log("Number of pages:", pdf.numPages);
 
-    setCurrentFile(file)
-    onFileSelect(file)
-    
-    // Simulate upload progress
-    setUploading(true)
-    let progress = 0
-    const interval = setInterval(() => {
-      progress += 10
-      setUploadProgress(progress)
-      if (progress >= 100) {
-        clearInterval(interval)
-        setUploading(false)
+        // Example: Extract text from first page
+        const page = await pdf.getPage(1);
+        const textContent = await page.getTextContent();
+        const textItems = textContent.items.map((item: any) => item.str);
+        console.log("First page text:", textItems.join(" "));
+      } catch (error) {
+        console.error("Error parsing PDF:", error);
       }
-    }, 200)
-  }, [maxSize, onFileSelect])
+    },
+    [currentFile]
+  );
+
+  const onDrop = useCallback(
+    (acceptedFiles: File[]) => {
+      setError(null);
+      const file = acceptedFiles[0];
+
+      if (!file) {
+        setError("No file selected");
+        return;
+      }
+
+      if (!file.type.includes("pdf")) {
+        setError("Please upload a PDF file");
+        return;
+      }
+
+      if (file.size > maxSize) {
+        setError(`File size must be less than ${maxSize / (1024 * 1024)}MB`);
+        return;
+      }
+
+      setCurrentFile(file);
+      onFileSelect(file);
+
+      // Simulate upload progress
+      setUploading(true);
+      let progress = 0;
+      const interval = setInterval(() => {
+        progress += 10;
+        setUploadProgress(progress);
+        if (progress >= 100) {
+          clearInterval(interval);
+          setUploading(false);
+        }
+      }, 200);
+    },
+    [maxSize, onFileSelect]
+  );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
-      'application/pdf': ['.pdf']
+      "application/pdf": [".pdf"],
     },
-    maxFiles: 1
-  })
+    maxFiles: 1,
+  });
 
   const removeFile = () => {
-    setCurrentFile(null)
-    setUploadProgress(0)
-    setError(null)
-  }
+    setCurrentFile(null);
+    setUploadProgress(0);
+    setError(null);
+  };
 
   return (
     <div className="w-full max-w-xl mx-auto">
@@ -78,10 +111,10 @@ export function FileUpload({
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
-      
+
       {!currentFile ? (
-        <Card 
-          {...getRootProps()} 
+        <Card
+          {...getRootProps()}
           className={`
             p-8 
             border-2 
@@ -90,7 +123,7 @@ export function FileUpload({
             transition-colors 
             cursor-pointer
             relative
-            ${isDragActive ? 'border-primary bg-primary/5' : 'border-gray-300'}
+            ${isDragActive ? "border-primary bg-primary/5" : "border-gray-300"}
           `}
         >
           <input {...getInputProps()} />
@@ -100,7 +133,7 @@ export function FileUpload({
             </div>
             <div className="space-y-2">
               <h3 className="font-semibold text-lg">
-                {isDragActive ? 'Drop your PDF here' : 'Upload your proposal'}
+                {isDragActive ? "Drop your PDF here" : "Upload your proposal"}
               </h3>
               <p className="text-sm text-muted-foreground">
                 Drag and drop your PDF file here or click to browse
@@ -149,5 +182,5 @@ export function FileUpload({
         </Card>
       )}
     </div>
-  )
+  );
 }
