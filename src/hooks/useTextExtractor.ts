@@ -7,6 +7,8 @@ export interface ExtractedSections {
   validation: string;
 }
 
+export type SectionKeys = keyof ExtractedSections;
+
 export const useTextExtractor = () => {
   const extractSections = useCallback((text: string): ExtractedSections => {
     const extractSection = (startTitle: string, endTitle: string): string => {

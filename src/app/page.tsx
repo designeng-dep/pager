@@ -9,7 +9,12 @@ import { FileUpload } from "@/components/FileUpload";
 import ScoreCard from "@/components/ScoreCard";
 import { usePDFJS } from "@/hooks/usePDFJS";
 import { useOpenAI } from "@/hooks/useOpenAI";
-import { useTextExtractor, ExtractedSections } from "@/hooks/useTextExtractor";
+import {
+  useTextExtractor,
+  ExtractedSections,
+  SectionKeys,
+} from "@/hooks/useTextExtractor";
+import { analyzerPrompts } from "@/constants/analyzerPrompts";
 
 interface Section {
   title: string;
@@ -24,29 +29,65 @@ export default function Page() {
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [aiResponse, setAIResponse] = useState("");
+  const [aiResponses, setAiResponses] = useState<Record<SectionKeys, string>>({
+    definitionAndSize: "",
+    measurableOutcomes: "",
+    proposedSolution: "",
+    validation: "",
+  });
   const [extractedSections, setExtractedSections] =
     useState<ExtractedSections | null>(null);
 
   const handleFileSelect = async (selectedFile: File) => {
     setFile(selectedFile);
     setLoading(true);
+    setError(null);
+
     try {
       const extractedText = await extractText(selectedFile);
-
       const sections = extractSections(extractedText);
       setExtractedSections(sections);
 
-      const response = await analyzeText(extractedText);
-      if (response) {
-        setAIResponse(response);
-      }
+      // Process each section with its corresponding prompt
+      const analysisPromises = Object.entries(sections).map(
+        async ([key, content]) => {
+          const prompt = analyzerPrompts[key as keyof ExtractedSections];
+          const response = await analyzeText(content, prompt);
+          return { key, response };
+        }
+      );
+
+      const results = await Promise.all(analysisPromises);
+
+      const newResponses = results.reduce(
+        (acc, { key, response }) => ({
+          ...acc,
+          [key]: response || "",
+        }),
+        {} as Record<keyof ExtractedSections, string>
+      );
+
+      setAiResponses(newResponses);
     } catch (error) {
       console.error("Error processing file:", error);
       setError("Failed to process the file");
     } finally {
       setLoading(false);
     }
+  };
+
+  const renderAIAnalysis = () => {
+    return Object.entries(aiResponses).map(([key, analysis]) => (
+      <div key={key} className="mt-8 p-4 bg-white rounded-lg shadow">
+        <h2 className="text-xl font-semibold mb-4">
+          AI Analysis:{" "}
+          {key
+            .replace(/([A-Z])/g, " $1")
+            .replace(/^./, (str) => str.toUpperCase())}
+        </h2>
+        <p className="whitespace-pre-wrap">{analysis}</p>
+      </div>
+    ));
   };
 
   return (
@@ -70,12 +111,7 @@ export default function Page() {
         </Card>
       )}
 
-      {aiResponse && (
-        <div className="mt-8 p-4 bg-white rounded-lg shadow">
-          <h2 className="text-xl font-semibold mb-4">AI Analysis</h2>
-          <p className="whitespace-pre-wrap">{aiResponse}</p>
-        </div>
-      )}
+      {renderAIAnalysis()}
 
       {pdfContent && (
         <div className="mt-8 p-4 bg-white rounded-lg shadow">

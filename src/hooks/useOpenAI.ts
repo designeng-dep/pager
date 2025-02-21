@@ -6,14 +6,14 @@ const openai = new OpenAI({
 });
 
 export const useOpenAI = () => {
-  const analyzeText = async (text: string) => {
+  const analyzeText = async (text: string, systemPrompt: string) => {
     try {
       const response = await openai.chat.completions.create({
         model: "gpt-4o-mini",
         messages: [
           {
             role: "system",
-            content: "You are a helpful assistant that analyzes PDF content.",
+            content: systemPrompt,
           },
           {
             role: "user",
