@@ -41,8 +41,10 @@ export const usePDFJS = () => {
         fullText += pageText;
       }
 
-      setPdfContent(fullText);
-      return fullText;
+      // Normalize whitespace: replace multiple spaces, newlines, and tabs with a single space
+      const normalizedText = fullText.replace(/\s+/g, " ").trim();
+      setPdfContent(normalizedText);
+      return normalizedText;
     } catch (error) {
       console.error("Error extracting PDF text:", error);
       return "";
