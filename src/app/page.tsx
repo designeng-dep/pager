@@ -65,7 +65,7 @@ export default function Page() {
   return (
     <div className="container mx-auto py-8 space-y-8">
       <div className="text-center space-y-4">
-        <h1 className="text-4xl font-bold">Proposal Critique Test</h1>
+        <h1 className="text-4xl font-bold">Proposal Critique</h1>
         <p className="text-muted-foreground max-w-2xl mx-auto">
           Upload your funding proposal for an AI-powered analysis and receive
           detailed feedback to enhance its effectiveness.
