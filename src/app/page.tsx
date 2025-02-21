@@ -7,6 +7,7 @@ import { Loader2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { FileUpload } from "@/components/FileUpload";
 import ScoreCard from "@/components/ScoreCard";
+import { usePDFJS } from "@/hooks/usePDFJS";
 
 interface Section {
   title: string;
@@ -15,6 +16,7 @@ interface Section {
 }
 
 export default function Page() {
+  const { extractText, pdfContent } = usePDFJS();
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -54,9 +56,7 @@ export default function Page() {
   const handleFileSelect = async (selectedFile: File) => {
     setFile(selectedFile);
     setLoading(true);
-    // Here you would typically make an API call to process the PDF
-    // For now, we're just simulating with the static data
-    setTimeout(() => setLoading(false), 2000);
+    await extractText(selectedFile);
   };
 
   const overallScore =
@@ -103,6 +103,15 @@ export default function Page() {
             </div>
           </div>
         )
+      )}
+
+      {pdfContent && (
+        <div className="mt-8">
+          <h2 className="text-xl font-semibold mb-2">Extracted Content:</h2>
+          <div className="whitespace-pre-wrap bg-gray-50 p-4 rounded-lg border">
+            {pdfContent}
+          </div>
+        </div>
       )}
     </div>
   );
