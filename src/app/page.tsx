@@ -89,13 +89,6 @@ export default function Page() {
           </div>
         ))}
 
-      {/* {aiResponse && (
-        <div className="mt-8 p-4 bg-white rounded-lg shadow">
-          <h2 className="text-xl font-semibold mb-4">AI Analysis</h2>
-          <p className="whitespace-pre-wrap">{aiResponse}</p>
-        </div>
-      )} */}
-
       {pdfContent && (
         <div className="mt-8 p-4 bg-white rounded-lg shadow">
           <h2 className="text-xl font-semibold mb-4">PDF Content</h2>
