@@ -9,6 +9,7 @@ import { FileUpload } from "@/components/FileUpload";
 import ScoreCard from "@/components/ScoreCard";
 import { usePDFJS } from "@/hooks/usePDFJS";
 import { useOpenAI } from "@/hooks/useOpenAI";
+import { useTextExtractor, ExtractedSections } from "@/hooks/useTextExtractor";
 
 interface Section {
   title: string;
@@ -19,53 +20,27 @@ interface Section {
 export default function Page() {
   const { extractText, pdfContent } = usePDFJS();
   const { analyzeText } = useOpenAI();
+  const { extractSections } = useTextExtractor();
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [aiResponse, setAIResponse] = useState("");
-  const [sections, setSections] = useState<Section[]>([
-    {
-      title: "Problem Area",
-      score: 8.5,
-      feedback:
-        "The problem statement is well-defined and its significance is clearly articulated. Consider adding more quantitative data to strengthen the impact assessment.",
-    },
-    {
-      title: "Strategy",
-      score: 7.8,
-      feedback:
-        "The proposed solution is feasible and generally well-supported. Adding more specific case studies or pilot results would enhance credibility.",
-    },
-    {
-      title: "Roadmap",
-      score: 6.5,
-      feedback:
-        "Timeline and milestones are present but could be more detailed. Consider breaking down larger phases into specific actionable steps.",
-    },
-    {
-      title: "Open Issues",
-      score: 7.2,
-      feedback:
-        "Key risks are identified, but mitigation strategies could be more specific. Consider adding a risk assessment matrix.",
-    },
-    {
-      title: "Appendix",
-      score: 7.4,
-      feedback:
-        "Supporting materials are relevant but could be better organized. Consider adding an executive summary of key data points.",
-    },
-  ]);
+  const [extractedSections, setExtractedSections] =
+    useState<ExtractedSections | null>(null);
 
   const handleFileSelect = async (selectedFile: File) => {
     setFile(selectedFile);
     setLoading(true);
     try {
       const extractedText = await extractText(selectedFile);
+
+      const sections = extractSections(extractedText);
+      setExtractedSections(sections);
+
       const response = await analyzeText(extractedText);
       if (response) {
         setAIResponse(response);
       }
-      console.log("response????", response);
     } catch (error) {
       console.error("Error processing file:", error);
       setError("Failed to process the file");
@@ -73,9 +48,6 @@ export default function Page() {
       setLoading(false);
     }
   };
-
-  const overallScore =
-    sections.reduce((acc, section) => acc + section.score, 0) / sections.length;
 
   return (
     <div className="container mx-auto py-8 space-y-8">
@@ -109,6 +81,44 @@ export default function Page() {
         <div className="mt-8 p-4 bg-white rounded-lg shadow">
           <h2 className="text-xl font-semibold mb-4">PDF Content</h2>
           <p className="whitespace-pre-wrap">{pdfContent}</p>
+        </div>
+      )}
+
+      {extractedSections && (
+        <div className="mt-8 space-y-6">
+          <div className="rounded-lg border border-gray-200 p-6">
+            <h2 className="mb-4 text-xl font-semibold">
+              Definition and Size of Problem
+            </h2>
+            <p className="whitespace-pre-wrap">
+              {extractedSections.definitionAndSize}
+            </p>
+          </div>
+
+          <div className="rounded-lg border border-gray-200 p-6">
+            <h2 className="mb-4 text-xl font-semibold">Measurable Outcomes</h2>
+            <p className="whitespace-pre-wrap">
+              {extractedSections.measurableOutcomes}
+            </p>
+          </div>
+
+          <div className="rounded-lg border border-gray-200 p-6">
+            <h2 className="mb-4 text-xl font-semibold">
+              Proposed Solution and Risk Mitigation
+            </h2>
+            <p className="whitespace-pre-wrap">
+              {extractedSections.proposedSolution}
+            </p>
+          </div>
+
+          <div className="rounded-lg border border-gray-200 p-6">
+            <h2 className="mb-4 text-xl font-semibold">
+              Validation of Previous POCs
+            </h2>
+            <p className="whitespace-pre-wrap">
+              {extractedSections.validation}
+            </p>
+          </div>
         </div>
       )}
     </div>
